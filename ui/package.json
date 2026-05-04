@@ -9,6 +9,7 @@
     "preview": "vite preview demo"
   },
   "dependencies": {
+    "pixi.js": "^8.2.6",
     "react": "^18.3.1",
     "react-dom": "^18.3.1"
   },
