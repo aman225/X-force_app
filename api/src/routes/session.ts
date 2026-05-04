@@ -28,13 +28,13 @@ const EndSessionSchema = z.object({
 // ─── Game Config (constant — could be DB-driven in future) ───────────────────
 
 const GAME_CONFIG = {
-  boltSpeedMin: 150,
-  boltSpeedMax: 280,
+  boltSpeedMin: 200,
+  boltSpeedMax: 350,
   durationSeconds: 30,
 } as const;
 
 function randomBoltCount(): number {
-  return Math.floor(Math.random() * 6) + 15; // 15–20
+  return Math.floor(Math.random() * 11) + 20; // 20–30 bolts for more action
 }
 
 // ─── Route Plugin ─────────────────────────────────────────────────────────────

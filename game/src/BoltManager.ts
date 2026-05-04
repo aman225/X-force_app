@@ -92,20 +92,10 @@ export class BoltManager {
   private spawnBolt(index: number): void {
     const isXForceVisual = index === this.xForceBoltIndex && this.thumsUpTexture !== null;
 
-    let container: Container;
-    let radius: number;
-    let glowRef: ReturnType<typeof AssetFactory.createThumsUpBolt>["glow"] | null = null;
-
-    if (isXForceVisual && this.thumsUpTexture) {
-      const result = AssetFactory.createThumsUpBolt(this.thumsUpTexture);
-      container = result.container;
-      radius = result.radius;
-      glowRef = result.glow;
-    } else {
-      const result = AssetFactory.createBolt();
-      container = result.container;
-      radius = result.radius;
-    }
+    // Always spawn regular bolt initially
+    const result = AssetFactory.createBolt();
+    const container = result.container;
+    const radius = result.radius;
 
     const x = radius + Math.random() * (this.canvasWidth - radius * 2);
     const speed =
@@ -133,15 +123,17 @@ export class BoltManager {
 
     this.bolts.push(bolt);
 
-    // Register glow for pulsing
-    if (isXForceVisual && glowRef) {
-      this.xForceGlows.set(index, { glow: glowRef, phase: 0 });
-    }
+    // No pre-glow for X-Force bolt since it's hidden as a regular bolt
   }
 
   // ── Per-frame update ───────────────────────────────────────────────────────
 
   update(elapsed: number, dt: number): void {
+    // Random ambient flashes for more "thunder" adventure
+    if (Math.random() < 0.005) { // Occasional background flash
+      this.animManager.playLightningFlash(this.canvasWidth, this.canvasHeight);
+    }
+
     // Spawn due bolts
     while (
       this.nextSpawnIdx < this.spawnSchedule.length &&
@@ -198,7 +190,7 @@ export class BoltManager {
     // Play slice animation at bolt position
     this.animManager.playSlice(
       bolt.container,
-      bolt.index === this.xForceBoltIndex
+      bolt.index === this.xForceBoltIndex ? this.thumsUpTexture : null
     );
     this.animManager.playSparks(
       bolt.x,

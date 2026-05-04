@@ -27,5 +27,8 @@ export function seededRandom(seed: string): number {
  * Same orderId always returns the same bolt index.
  */
 export function pickXForceBoltIdx(orderId: string, totalBolts: number): number {
-  return Math.floor(seededRandom(orderId) * totalBolts);
+  const minIdx = 6;
+  const maxIdx = totalBolts - 1;
+  if (maxIdx <= minIdx) return minIdx;
+  return Math.floor(seededRandom(orderId) * (maxIdx - minIdx + 1)) + minIdx;
 }

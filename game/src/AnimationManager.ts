@@ -13,6 +13,7 @@ import {
   Graphics,
   Text,
   TextStyle,
+  Sprite,
   type Application,
 } from "pixi.js";
 import { AssetFactory } from "./AssetFactory.js";
@@ -46,29 +47,49 @@ export class AnimationManager {
    * Splits a bolt container into top/bottom halves that fly apart and fade.
    * Duration: 300ms
    */
-  playSlice(boltContainer: Container, isXForce: boolean): void {
+  playSlice(boltContainer: Container, thumsUpTexture: import("pixi.js").Texture | null): void {
     const x = boltContainer.x;
     const y = boltContainer.y;
 
-    if (isXForce) {
-      // Thums Up can explodes: scale up and fade out
+    if (thumsUpTexture) {
+      // X-Force Hit: Thums Up can bursts out of the sliced bolt!
+      const can = new Sprite(thumsUpTexture);
+      can.anchor.set(0.5);
+      can.x = x;
+      can.y = y;
+      can.scale.set(0);
+      
+      // Add a red glow behind it
+      const glow = new Graphics();
+      glow.circle(0, 0, 50);
+      glow.fill({ color: 0xe31837, alpha: 0.6 });
+      glow.x = x;
+      glow.y = y;
+      glow.scale.set(0);
+
+      this.stage.addChild(glow);
+      this.stage.addChild(can);
+
       let elapsed = 0;
-      const DURATION = 0.3;
-      this.stage.addChild(boltContainer); // Keep it visible for the animation
+      const DURATION = 0.8;
+
       this.animations.push({
         update: (dt) => {
           elapsed += dt;
-          const t = Math.min(elapsed / DURATION, 1);
-          boltContainer.scale.set(1 + t * 0.5);
-          boltContainer.alpha = 1 - t;
-          return t >= 1;
+          const t = Math.min(elapsed / 0.4, 1); // bounce up in 400ms
+          const scale = bounceEase(t) * 0.8; // final scale 0.8
+          can.scale.set(scale);
+          glow.scale.set(scale * (1 + 0.2 * Math.sin(elapsed * 10)));
+          glow.alpha = 0.6 * (1 - Math.min(elapsed / DURATION, 1));
+          
+          return elapsed >= DURATION;
         },
         cleanup: () => {
-          this.stage.removeChild(boltContainer);
-          boltContainer.destroy({ children: true });
+          // Leave the can on stage, it looks cool during the win animation!
+          // ThunderSlash.ts destroy() will clean it up.
+          glow.destroy();
         },
       });
-      return;
     }
 
     // Create top half (moves up-right)
@@ -254,6 +275,31 @@ export class AnimationManager {
         this.stage.removeChild(flash);
         flash.destroy();
         // winText and sub persist until game.end() clears stage
+      },
+    });
+  }
+
+  // ── Ambient Lightning Flash ──────────────────────────────────────────────────
+
+  playLightningFlash(width: number, height: number): void {
+    const flash = new Graphics();
+    flash.rect(0, 0, width, height);
+    flash.fill({ color: 0xffffff, alpha: 0.15 }); // subtle white flash
+    this.stage.addChildAt(flash, 0); // Put it behind the bolts
+
+    let elapsed = 0;
+    const DURATION = 0.15; // very quick flash
+
+    this.animations.push({
+      update: (dt) => {
+        elapsed += dt;
+        const t = Math.min(elapsed / DURATION, 1);
+        flash.alpha = 0.15 * (1 - t);
+        return t >= 1;
+      },
+      cleanup: () => {
+        this.stage.removeChild(flash);
+        flash.destroy();
       },
     });
   }

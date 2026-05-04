@@ -200,12 +200,14 @@
         await game.init(container);
 
         // Simulate what the API would return
-        const TOTAL_BOLTS = 18;
-        const XFORCE_IDX = Math.floor(Math.random() * TOTAL_BOLTS);
+        const TOTAL_BOLTS = 25;
+        // Ensure X-Force comes after at least 6-7 bolts
+        const minIdx = 6;
+        const XFORCE_IDX = Math.floor(Math.random() * (TOTAL_BOLTS - minIdx)) + minIdx;
         xforceIdxLabel.textContent = XFORCE_IDX;
         addLog(`🎮 Session started. Total bolts: ${TOTAL_BOLTS}, Xforce idx: <strong>${XFORCE_IDX}</strong>`);
 
-        const config = { boltSpeedMin: 150, boltSpeedMax: 280, durationSeconds: DURATION };
+        const config = { boltSpeedMin: 200, boltSpeedMax: 350, durationSeconds: DURATION };
 
         game.onBoltSliced = (idx, x, y) => {
           const pts = "+50";

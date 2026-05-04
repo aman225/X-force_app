@@ -70,12 +70,19 @@ export function useGameSession({ apiBaseUrl }: UseGameSessionOptions): GameSessi
   );
 
   const startSession = useCallback(
-    (orderId: string, userId: string, orderToken: string) =>
-      post<SessionStartResponse>("/game/session/start", {
+    (orderId: string, userId: string, orderToken: string) => {
+      const TOTAL_BOLTS = 20;
+      // Ensure it appears after at least 6-7 bolts
+      const minIdx = 6;
+      const xForceIdx = Math.floor(Math.random() * (TOTAL_BOLTS - minIdx)) + minIdx;
+      
+      return post<SessionStartResponse>("/game/session/start", {
         orderId,
         userId,
         orderToken,
-      }),
+        xForceIdx,
+      });
+    },
     [post]
   );
 
