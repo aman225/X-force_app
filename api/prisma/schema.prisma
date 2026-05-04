@@ -1,0 +1,55 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model GameSession {
+  id            String       @id @default(cuid())
+  orderId       String       @unique
+  userId        String
+  xforceBoltIdx Int          // which bolt index is the X-Force bolt (NEVER sent to client)
+  totalBolts    Int
+  startedAt     DateTime     @default(now())
+  endedAt       DateTime?
+  score         Int          @default(0)
+  won           Boolean      @default(false)
+  slashEvents   SlashEvent[]
+  reward        Reward?
+
+  @@index([userId])
+}
+
+model SlashEvent {
+  id        String      @id @default(cuid())
+  sessionId String
+  session   GameSession @relation(fields: [sessionId], references: [id])
+  boltIndex Int
+  slashX    Float
+  slashY    Float
+  timestamp DateTime    @default(now())
+  wasXForce Boolean
+
+  @@index([sessionId])
+}
+
+model Reward {
+  id          String      @id @default(cuid())
+  sessionId   String      @unique
+  session     GameSession @relation(fields: [sessionId], references: [id])
+  userId      String
+  couponCode  String      @unique
+  issuedAt    DateTime    @default(now())
+  expiresAt   DateTime
+  redeemed    Boolean     @default(false)
+  redeemedAt  DateTime?
+
+  @@index([userId])
+  @@index([couponCode])
+}

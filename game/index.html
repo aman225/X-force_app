@@ -1,0 +1,243 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>X-Force Thunder Slash — Game Testbed</title>
+    <style>
+      * { box-sizing: border-box; margin: 0; padding: 0; }
+      body {
+        background: #0a0a0f;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        min-height: 100vh;
+        font-family: Inter, Arial, sans-serif;
+        color: #fff;
+        user-select: none;
+      }
+
+      h1 {
+        font-size: 1.4rem;
+        font-weight: 700;
+        letter-spacing: 0.05em;
+        margin-bottom: 12px;
+        color: #ffffff;
+        text-shadow: 0 0 20px rgba(0, 160, 227, 0.6);
+      }
+      h1 span {
+        color: #00a0e3;
+      }
+
+      #game-wrapper {
+        width: 100%;
+        max-width: 480px;
+        background: linear-gradient(180deg, #0a1122 0%, #040810 100%);
+        border: 2px solid rgba(0, 160, 227, 0.4);
+        border-radius: 16px;
+        overflow: hidden;
+        position: relative;
+        box-shadow: 0 0 40px rgba(0, 160, 227, 0.1);
+      }
+
+      #game-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 10px 16px 8px;
+        background: rgba(0,0,0,0.6);
+        border-bottom: 1px solid rgba(0, 160, 227, 0.3);
+      }
+
+      #game-header .label {
+        font-size: 0.875rem;
+        color: #00a0e3;
+        font-weight: 600;
+      }
+
+      #timer-bar-container {
+        width: 100%;
+        height: 4px;
+        background: rgba(255,255,255,0.05);
+        overflow: hidden;
+        margin-top: 2px;
+      }
+
+      #timer-bar {
+        height: 100%;
+        width: 100%;
+        background: linear-gradient(90deg, #e31837, #990a20);
+        transition: width 0.1s linear;
+      }
+
+      #game-container {
+        width: 100%;
+        cursor: crosshair;
+      }
+
+      #game-container canvas {
+        display: block;
+        width: 100% !important;
+        height: auto !important;
+      }
+
+      #controls {
+        padding: 12px 16px;
+        display: flex;
+        gap: 8px;
+      }
+
+      button {
+        padding: 8px 20px;
+        border-radius: 8px;
+        border: none;
+        font-size: 0.875rem;
+        font-weight: 700;
+        cursor: pointer;
+        transition: transform 0.1s, opacity 0.1s;
+      }
+      button:hover { opacity: 0.85; transform: scale(1.03); }
+
+      #btn-start {
+        background: linear-gradient(135deg, #e31837, #b50d24);
+        color: #ffffff;
+        box-shadow: 0 4px 10px rgba(227, 24, 55, 0.3);
+      }
+
+      #btn-end {
+        background: rgba(255,255,255,0.05);
+        color: #fff;
+        border: 1px solid rgba(255,255,255,0.15);
+      }
+
+      #log {
+        padding: 8px 16px 12px;
+        font-size: 0.75rem;
+        color: #6b7280;
+        min-height: 60px;
+        max-height: 120px;
+        overflow-y: auto;
+        line-height: 1.6;
+        border-top: 1px solid rgba(255,255,255,0.05);
+      }
+
+      #log p { margin: 0; }
+      #log .win { color: #00a0e3; font-weight: bold; }
+      #log .slash { color: #e31837; }
+      #log .end { color: #44c8f5; }
+
+      .badge {
+        display: inline-block;
+        padding: 2px 8px;
+        border-radius: 4px;
+        background: rgba(227, 24, 55, 0.2);
+        color: #ffffff;
+        font-size: 0.75rem;
+        font-weight: 700;
+        border: 1px solid rgba(227, 24, 55, 0.4);
+      }
+    </style>
+  </head>
+  <body>
+    <h1><span>⚡</span> Thums Up Xforce — Testbed</h1>
+    <p style="font-size:0.8rem;color:#6b7280;margin-bottom:12px;text-align:center;">
+      Standalone game engine test. No API — <span style="color:#00a0e3">Thums Up Xforce</span> bolt index is hardcoded.
+    </p>
+
+    <div id="game-wrapper">
+      <div id="game-header">
+        <span class="label">ALL THUNDER NO SUGAR ⚡</span>
+        <span id="score-label" class="badge">0 pts</span>
+      </div>
+      <div id="timer-bar-container">
+        <div id="timer-bar"></div>
+      </div>
+      <div id="game-container"></div>
+      <div id="controls">
+        <button id="btn-start">▶ Start Game</button>
+        <button id="btn-end">■ End Game</button>
+      </div>
+      <div id="log"><p>Click "Start Game" to begin. Thums Up Xforce index: <strong id="xforce-idx">?</strong></p></div>
+    </div>
+
+    <script type="module">
+      import { ThunderSlashGame } from "./src/ThunderSlash.ts";
+
+      const container = document.getElementById("game-container");
+      const log = document.getElementById("log");
+      const scoreLabel = document.getElementById("score-label");
+      const timerBar = document.getElementById("timer-bar");
+      const xforceIdxLabel = document.getElementById("xforce-idx");
+      let game = null;
+      let timerInterval = null;
+      let gameStartTime = null;
+      const DURATION = 30;
+
+      function addLog(html, cls = "") {
+        const p = document.createElement("p");
+        p.innerHTML = html;
+        if (cls) p.className = cls;
+        log.appendChild(p);
+        log.scrollTop = log.scrollHeight;
+      }
+
+      function startTimer() {
+        gameStartTime = Date.now();
+        timerBar.style.width = "100%";
+        timerInterval = setInterval(() => {
+          const elapsed = (Date.now() - gameStartTime) / 1000;
+          const pct = Math.max(0, 1 - elapsed / DURATION);
+          timerBar.style.width = `${pct * 100}%`;
+          if (pct <= 0) clearInterval(timerInterval);
+        }, 100);
+      }
+
+      document.getElementById("btn-start").addEventListener("click", async () => {
+        if (game) { game.destroy(); }
+
+        game = new ThunderSlashGame();
+        await game.init(container);
+
+        // Simulate what the API would return
+        const TOTAL_BOLTS = 18;
+        const XFORCE_IDX = Math.floor(Math.random() * TOTAL_BOLTS);
+        xforceIdxLabel.textContent = XFORCE_IDX;
+        addLog(`🎮 Session started. Total bolts: ${TOTAL_BOLTS}, Xforce idx: <strong>${XFORCE_IDX}</strong>`);
+
+        const config = { boltSpeedMin: 150, boltSpeedMax: 280, durationSeconds: DURATION };
+
+        game.onBoltSliced = (idx, x, y) => {
+          const pts = "+50";
+          const label = idx === XFORCE_IDX ? " 🌟 <strong>THUMS UP XFORCE HIT!</strong>" : "";
+          addLog(`✂ Sliced bolt #${idx} at (${Math.round(x)},${Math.round(y)}) ${pts}${label}`, idx === XFORCE_IDX ? "win slash" : "slash");
+          scoreLabel.textContent = `${game.currentScore} pts`;
+
+          // Simulate API confirming X-Force
+          if (idx === XFORCE_IDX) {
+            setTimeout(() => game.triggerXForceWin(), 100);
+          }
+        };
+
+        game.onXForceHit = () => {
+          addLog("⚡ YOU WON A FREE THUMS UP XFORCE! Coupon: XFORCE-AB12CD34", "win");
+        };
+
+        game.onGameEnd = (score) => {
+          clearInterval(timerInterval);
+          timerBar.style.width = "0%";
+          addLog(`🏁 Game over. Final score: <strong>${score} pts</strong>`, "end");
+          scoreLabel.textContent = `${score} pts`;
+        };
+
+        game.start("stub-session-token", TOTAL_BOLTS, config, XFORCE_IDX);
+        startTimer();
+      });
+
+      document.getElementById("btn-end").addEventListener("click", () => {
+        game?.end();
+        clearInterval(timerInterval);
+      });
+    </script>
+  </body>
+</html>
