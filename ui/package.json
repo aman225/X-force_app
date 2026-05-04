@@ -4,9 +4,9 @@
   "description": "X-Force Thunder Slash — React widget for Blinkit integration",
   "type": "module",
   "scripts": {
-    "dev": "vite --port 5174",
-    "build": "tsc && vite build",
-    "preview": "vite preview"
+    "dev": "vite --port 5174 demo",
+    "build": "tsc && vite build demo",
+    "preview": "vite preview demo"
   },
   "dependencies": {
     "react": "^18.3.1",
