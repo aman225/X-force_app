@@ -1,0 +1,7 @@
+{
+  "name": "xforce-thunderslash",
+  "version": "1.0.0",
+  "scripts": {
+    "build": "cd ui && npm install && npx vite build demo"
+  }
+}
