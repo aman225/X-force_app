@@ -318,10 +318,17 @@ export const ThunderSlashWidget: React.FC<ThunderSlashWidgetProps> = ({
   return (
     <div
       id="xforce-thunder-slash-widget"
-      className="w-full max-w-[480px] mx-auto rounded-xl overflow-hidden
-                 bg-gradient-to-b from-[#0a1122] via-[#040810] to-black border-2 border-cyan-800/60
-                 shadow-[0_0_50px_rgba(0,160,227,0.12)] relative"
+      className="w-full max-w-[480px] mx-auto rounded-2xl overflow-hidden
+                 bg-[#02050a] border border-cyan-800/40
+                 shadow-[0_8px_32px_rgba(0,0,0,0.8),_0_0_40px_rgba(0,160,227,0.15)] relative"
     >
+      {/* Animated Storm Background layers */}
+      <div className="absolute inset-0 bg-gradient-to-b from-[#0a1122] via-[#040810] to-black" />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-cyan-900/20 via-transparent to-transparent opacity-80" />
+      
+      {/* Lightning flash overlay - uses an arbitrary animation from Tailwind */}
+      <div className="absolute inset-0 bg-cyan-400 mix-blend-screen opacity-0 animate-[flash_8s_ease-out_infinite] pointer-events-none" />
+
       {/* Header */}
       <GameHeader
         score={state.score}

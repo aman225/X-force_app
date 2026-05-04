@@ -26,12 +26,18 @@
             fontFamily: { sans: ['Inter', 'sans-serif'] },
             animation: {
               winFlash: 'winFlash 0.4s ease-out',
+              flash: 'flash 8s ease-out infinite',
             },
             keyframes: {
               winFlash: {
                 '0%': { opacity: '0', transform: 'scale(0.95)' },
                 '50%': { opacity: '1', transform: 'scale(1.01)' },
                 '100%': { opacity: '1', transform: 'scale(1)' },
+              },
+              flash: {
+                '0%, 95%, 98%': { opacity: '0' },
+                '96%, 99%': { opacity: '0.15' },
+                '97%, 100%': { opacity: '0.05' },
               }
             }
           }
