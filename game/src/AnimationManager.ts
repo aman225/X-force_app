@@ -73,13 +73,21 @@ export class AnimationManager {
       let elapsed = 0;
       const DURATION = 0.8;
 
+      // Determine the base scale to make the can ~180px tall (nice and punchy)
+      const baseScale = 180 / thumsUpTexture.height;
+      
       this.animations.push({
         update: (dt) => {
           elapsed += dt;
           const t = Math.min(elapsed / 0.4, 1); // bounce up in 400ms
-          const scale = bounceEase(t) * 0.8; // final scale 0.8
+          
+          // Apply bounce easing multiplied by our baseScale
+          const scale = bounceEase(t) * baseScale;
           can.scale.set(scale);
-          glow.scale.set(scale * (1 + 0.2 * Math.sin(elapsed * 10)));
+          
+          // Glow scales independently
+          const glowScale = bounceEase(t) * 1.5; 
+          glow.scale.set(glowScale * (1 + 0.15 * Math.sin(elapsed * 12)));
           glow.alpha = 0.6 * (1 - Math.min(elapsed / DURATION, 1));
           
           return elapsed >= DURATION;
