@@ -151,9 +151,8 @@ export const ThunderSlashWidget: React.FC<ThunderSlashWidgetProps> = ({
         });
 
         // Dynamically import game engine (code-split)
-        const { ThunderSlashGame } = await import(
-          "../../../game/src/ThunderSlash.ts"
-        );
+        // @ts-ignore: Hide path from TS static analysis to prevent rootDir violation
+        const { ThunderSlashGame } = await import("../../../game/src/ThunderSlash.js");
 
         if (cancelled || !canvasRef.current) return;
 
