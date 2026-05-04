@@ -331,9 +331,9 @@ export const ThunderSlashWidget: React.FC<ThunderSlashWidgetProps> = ({
 
       {/* Game canvas area */}
       {showGame && (
-        <div className="relative w-full" style={{ minHeight: 300 }}>
+        <div className="relative w-full touch-none" style={{ minHeight: 300 }}>
           {/* PixiJS mounts here */}
-          <div ref={canvasRef} className="w-full" />
+          <div ref={canvasRef} className="w-full touch-none" />
 
           {/* Loading state */}
           {state.phase === "loading" && (

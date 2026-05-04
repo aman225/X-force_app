@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
     <title>X-Force Thunder Slash — Game Testbed</title>
     <style>
       * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -16,6 +16,8 @@
         font-family: Inter, Arial, sans-serif;
         color: #fff;
         user-select: none;
+        -webkit-user-select: none;
+        touch-action: none;
       }
 
       h1 {
@@ -79,7 +81,8 @@
       #game-container canvas {
         display: block;
         width: 100% !important;
-        height: auto !important;
+        height: 100% !important;
+        touch-action: none;
       }
 
       #controls {
